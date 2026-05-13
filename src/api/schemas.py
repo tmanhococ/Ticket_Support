@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class TicketIn(BaseModel):
@@ -27,11 +27,11 @@ class TicketIn(BaseModel):
 
     ticket_id: UUID
     timestamp: datetime
-    subject: str
+    subject: str = Field(..., max_length=500)
     body: str
-    language: Optional[str] = None
-    queue: Optional[str] = None
-    type: Optional[str] = None
+    language: Optional[str] = Field(None, max_length=10)
+    queue: Optional[str] = Field(None, max_length=100)
+    type: Optional[str] = Field(None, max_length=50)
 
     @field_validator("subject", "body")
     @classmethod

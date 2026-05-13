@@ -3,32 +3,50 @@ services:
     image: postgres:15-alpine
     container_name: tickets_db
     environment:
-      POSTGRES_USER: tickets_user
-      POSTGRES_PASSWORD: tickets_pass
-      POSTGRES_DB: tickets_db
+      POSTGRES_USER: ${POSTGRES_USER:-tickets_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tickets_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-tickets_db}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tickets_user -d tickets_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tickets_user} -d ${POSTGRES_DB:-tickets_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   api:
     build:
-      context: ./src/api
-      dockerfile: Dockerfile
+      context: .                          # Project root — allows access to requirements.txt and src/
+      dockerfile: src/api/Dockerfile
     container_name: tickets_api
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://tickets_user:tickets_pass@db:5432/tickets_db
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-tickets_user}:${POSTGRES_PASSWORD:-tickets_pass}@db:5432/${POSTGRES_DB:-tickets_db}
     depends_on:
       db:
         condition: service_healthy
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  simulator:
+    build:
+      context: .                          # Project root — allows access to requirements.txt and src/
+      dockerfile: src/simulator/Dockerfile
+    container_name: tickets_simulator
+    environment:
+      API_URL: ${API_URL:-http://api:8000}
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"
 
 volumes:
   postgres_data:

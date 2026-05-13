@@ -1,6 +1,6 @@
 # Story 1.3: Create Intake Endpoint & DB Save
 
-Status: review
+Status: done
 
 ## Story
 
@@ -41,7 +41,7 @@ so that the system can continuously ingest simulated traffic from the Stream Sim
 
 ### Review Findings
 
-- [ ] [Review][Patch] `TicketIn` lacks `max_length` constraints matching DB columns (`subject`, `language`, `queue`, `type`), causing length validation failures to trigger 503 instead of 422. [`src/api/schemas.py`]
+- [x] [Review][Patch] `TicketIn` lacks `max_length` constraints matching DB columns (`subject`, `language`, `queue`, `type`), causing length validation failures to trigger 503 instead of 422. [`src/api/schemas.py`]
 - [x] [Review][Defer] Enforce timezone-aware datetimes explicitly (`AwareDatetime` instead of `datetime`) to prevent naive datetime storage issues. [`src/api/schemas.py`] — deferred, pre-existing
 
 ## Dev Notes
