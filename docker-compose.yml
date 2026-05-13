@@ -48,5 +48,19 @@ services:
         condition: service_healthy
     restart: "no"
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: src/dashboard/Dockerfile
+    container_name: tickets_dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tickets_user}:${POSTGRES_PASSWORD:-tickets_pass}@db:5432/${POSTGRES_DB:-tickets_db}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
 volumes:
   postgres_data:

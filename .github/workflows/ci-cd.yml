@@ -122,7 +122,7 @@ jobs:
 
             # Restart only the API container (DB continues running)
             cd ~/Ticket_Support
-            docker-compose up -d --no-deps api
+            docker compose up -d --no-deps api
 
             # Wait for container to become healthy
             echo "Waiting for API to be healthy..."
@@ -167,7 +167,7 @@ jobs:
 
             # Restart only the API container
             cd ~/Ticket_Support
-            docker-compose up -d --no-deps api
+            docker compose up -d --no-deps api
 
             # Wait for container to become healthy
             echo "Waiting for API to be healthy..."
