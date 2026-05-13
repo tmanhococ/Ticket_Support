@@ -5,6 +5,7 @@ GET /health → {"status": "ok", "db": "connected" | "unavailable"}
 
 Always returns HTTP 200 — never 500 — even when DB is down.
 """
+
 from fastapi import APIRouter
 
 from src.api.database import check_db_connection

@@ -7,6 +7,7 @@ Source: 02_domain_and_data_contract.md §2 + Story 1.3 AC3.
 IMPORTANT: This module must NOT import from database.py (one-way dependency).
 database.py imports Base from here — not the other way around.
 """
+
 from datetime import datetime
 from uuid import UUID
 
@@ -17,6 +18,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
+
     pass
 
 
@@ -30,14 +32,10 @@ class Ticket(Base):
 
     __tablename__ = "tickets"
 
-    ticket_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), primary_key=True
-    )
+    ticket_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     queue: Mapped[str | None] = mapped_column(String(100), nullable=True)
     type: Mapped[str | None] = mapped_column(String(50), nullable=True)

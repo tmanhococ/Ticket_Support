@@ -12,6 +12,7 @@ ACs covered:
 Note: Tests are synchronous — no async/HTTP needed for schema unit tests.
 FastAPI returns HTTP 422 (not 400) for Pydantic validation failures.
 """
+
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 

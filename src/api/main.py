@@ -6,6 +6,7 @@ Architecture rules (architecture.md §2.1, §5):
 - PostgreSQL via asyncpg from Day 1.
 - No Celery, Kafka, or Airflow.
 """
+
 import logging
 from contextlib import asynccontextmanager
 

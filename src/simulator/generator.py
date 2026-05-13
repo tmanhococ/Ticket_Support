@@ -106,6 +106,7 @@ INVALID_PATTERNS = [
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _build_base_ticket() -> dict:
     """Build a valid ticket dict using the current random state (not seeded here)."""
     language = random.choices(["en", "de"], weights=[70, 30])[0]
@@ -130,6 +131,7 @@ def _build_base_ticket() -> dict:
 # ---------------------------------------------------------------------------
 # Public generators
 # ---------------------------------------------------------------------------
+
 
 def generate_ticket(seed: int | None = None) -> dict:
     """
@@ -197,8 +199,7 @@ def generate_invalid_ticket(
         ticket["timestamp"] = "2024-13-99T99:99:99"
     else:
         raise ValueError(
-            f"Unknown invalid pattern: {chosen!r}. "
-            f"Must be one of: {INVALID_PATTERNS}"
+            f"Unknown invalid pattern: {chosen!r}. " f"Must be one of: {INVALID_PATTERNS}"
         )
 
     return ticket

@@ -5,6 +5,7 @@ ACs covered:
   AC1 — /health returns HTTP 200 with correct JSON body.
   AC4 — DB unavailability never causes HTTP 500 (graceful degradation).
 """
+
 from unittest.mock import AsyncMock, patch
 
 import pytest

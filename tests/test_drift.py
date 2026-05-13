@@ -30,7 +30,9 @@ def test_drift_language_is_mostly_german():
     """
     results = [generate_drift_ticket() for _ in range(500)]
     german_count = sum(1 for r in results if r["language"] == "de")
-    assert german_count >= 390, (  # ≥78% of 500 (well below expected 400)
+    assert (
+        german_count >= 390
+    ), (  # ≥78% of 500 (well below expected 400)
         f"Expected ≥390 German tickets out of 500, got {german_count}"
     )
 
@@ -42,7 +44,9 @@ def test_drift_type_is_mostly_incident():
     """
     results = [generate_drift_ticket() for _ in range(500)]
     incident_count = sum(1 for r in results if r["type"] == "Incident")
-    assert incident_count >= 330, (  # ≥66% of 500 (below expected 350)
+    assert (
+        incident_count >= 330
+    ), (  # ≥66% of 500 (below expected 350)
         f"Expected ≥330 Incident tickets out of 500, got {incident_count}"
     )
 
@@ -54,10 +58,11 @@ def test_drift_queue_is_mostly_technical_support():
     """
     results = [generate_drift_ticket() for _ in range(500)]
     ts_count = sum(1 for r in results if r["queue"] == "Technical Support")
-    assert ts_count >= 330, (  # ≥66% of 500 (below expected 350)
+    assert (
+        ts_count >= 330
+    ), (  # ≥66% of 500 (below expected 350)
         f"Expected ≥330 Technical Support tickets out of 500, got {ts_count}"
     )
-
 
 
 def test_drift_ticket_language_in_allowed_set():

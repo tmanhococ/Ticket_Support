@@ -5,6 +5,7 @@ Design rules (08_agent_workflow_rules.md §3):
 - Never crash on DB unavailability; log warning and degrade gracefully.
 - Use async engine (postgresql+asyncpg://) — NOT synchronous psycopg2.
 """
+
 import logging
 import os
 

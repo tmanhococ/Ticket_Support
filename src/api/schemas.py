@@ -5,6 +5,7 @@ Data Contract source: docs/project-context/02_domain_and_data_contract.md
 - TicketIn  → validates incoming ticket payloads (intake endpoint)
 - TicketOut → inference response shape (used from Story 1.3 / Epic 8 onwards)
 """
+
 from datetime import datetime
 from typing import Literal, Optional
 from uuid import UUID

@@ -10,6 +10,7 @@ ACs covered:
 
 Pattern: FastAPI dependency_overrides (correct approach for async deps).
 """
+
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -43,7 +44,7 @@ VALID_TICKET: dict = {
 def _make_ok_session() -> AsyncMock:
     """Async DB session that succeeds on commit."""
     session = AsyncMock()
-    session.add = MagicMock()          # synchronous add
+    session.add = MagicMock()  # synchronous add
     session.commit = AsyncMock()
     session.rollback = AsyncMock()
     return session

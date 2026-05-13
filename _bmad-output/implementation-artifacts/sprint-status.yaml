@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: "2026-05-12T21:38:59+07:00"
-last_updated: "2026-05-13T13:00:00+07:00"
+last_updated: "2026-05-13T13:15:00+07:00"
 project: Ticket_Support
 project_key: NOKEY
 tracking_system: file-system
@@ -62,7 +62,7 @@ development_status:
   # Epic 3: Walking skeleton CI/CD
   epic-3: in-progress
   3-1-dockerize-application-services: review
-  3-2-create-cicd-pipeline: ready-for-dev
+  3-2-create-cicd-pipeline: review
   epic-3-retrospective: optional
 
   # Epic 4: Product placeholder

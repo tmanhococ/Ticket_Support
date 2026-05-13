@@ -8,6 +8,7 @@ Design rules (08_agent_workflow_rules.md §3, 04_environment_and_deployment.md �
 - No inference / predicted_priority here (Epic 8 — Shadow Mode).
 - No S3 raw data upload here (Epic 5).
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -52,9 +53,7 @@ async def create_ticket(
         await db.commit()
     except SQLAlchemyError as exc:
         await db.rollback()
-        raise HTTPException(
-            status_code=503, detail="storage_unavailable"
-        ) from exc
+        raise HTTPException(status_code=503, detail="storage_unavailable") from exc
 
     return {
         "ticket_id": str(payload.ticket_id),

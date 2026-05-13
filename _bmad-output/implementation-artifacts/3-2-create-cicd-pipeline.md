@@ -1,6 +1,6 @@
 # Story 3.2: Create CI/CD Pipeline
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -32,71 +32,31 @@ So that every commit to `main` is automatically validated and deployed without a
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add linting/formatting dependencies to `requirements.txt` (AC: #3, #9)
-  - [ ] 1.1 Add `flake8==7.1.0` to `requirements.txt`
-  - [ ] 1.2 Add `black==24.4.2` to `requirements.txt`
-  - [ ] 1.3 Create `.flake8` config file at project root to configure max line length and excludes:
-    ```ini
-    [flake8]
-    max-line-length = 100
-    exclude = .git,__pycache__,.venv,venv,build,dist,_bmad-output
-    extend-ignore = E203,W503
-    ```
-  - [ ] 1.4 Create `pyproject.toml` (or `setup.cfg`) to configure `black`:
-    ```toml
-    [tool.black]
-    line-length = 100
-    target-version = ["py311"]
-    exclude = '''
-    /(
-      \.git | \.venv | build | dist | _bmad-output
-    )/
-    '''
-    ```
-  - [ ] 1.5 Run `black src/ tests/` locally to auto-format all existing code BEFORE adding the CI check (prevents the first pipeline run from immediately failing).
-  - [ ] 1.6 Run `flake8 src/ tests/` locally and fix any lint errors.
+- [x] Task 1: Add linting/formatting dependencies to `requirements.txt` (AC: #3, #9)
+  - [x] 1.1 Added `flake8==7.1.0` to `requirements.txt`
+  - [x] 1.2 Added `black==24.4.2` to `requirements.txt`
+  - [x] 1.3 Created `.flake8` config — max-line-length=100, excludes .git/__pycache__/.venv/build/dist/_bmad-output/.agent
+  - [x] 1.4 Created `pyproject.toml` with `[tool.black]` section — line-length=100, target-version=py311
+  - [x] 1.5 Ran `black src/ tests/` — 15 files reformatted, 7 unchanged
+  - [x] 1.6 Ran `flake8 src/ tests/` → fixed 2 errors: E501 long line in run_simulator.py, F401 unused pytest import in conftest.py
 
-- [ ] Task 2: Create GitHub Actions CI/CD workflow (AC: #1, #2, #3, #4, #5, #6, #7)
-  - [ ] 2.1 Create `.github/workflows/ci-cd.yml`
-  - [ ] 2.2 Configure workflow triggers:
-    ```yaml
-    on:
-      push:
-        branches: [main]
-        tags: ["v*.*.*"]
-      pull_request:
-        branches: [main]
-    ```
-  - [ ] 2.3 Add `ci` job (runs on all triggers):
-    - `runs-on: ubuntu-latest`
-    - Steps: checkout, setup Python 3.11, install deps, run flake8, run black --check, run pytest
-  - [ ] 2.4 Add `build-and-push` job (runs only on push to `main`, after `ci`):
-    - Login to GHCR using `GITHUB_TOKEN` (no extra secret needed — built-in)
-    - Build image with `docker buildx build`
-    - Tag with `${{ github.sha }}` (short: `${{ github.sha[:7] }}`) and `latest`
-    - Push to `ghcr.io/${{ github.repository_owner }}/tickets-api`
-  - [ ] 2.5 Add `deploy-staging` job (runs after `build-and-push`, only on push to `main`):
-    - Use `appleboy/ssh-action@v1.0.3` for SSH
-    - SSH into `STAGING_HOST` using `STAGING_SSH_KEY` and `STAGING_USER`
-    - Commands: `docker pull ghcr.io/{owner}/tickets-api:latest && docker-compose up -d --no-deps api && sleep 15 && curl -f http://localhost:8000/health`
-  - [ ] 2.6 Add `deploy-production` job (runs only on `v*.*.*` tag push):
-    - Same pattern as `deploy-staging` but uses `PROD_HOST`, `PROD_SSH_KEY`, `PROD_USER`
+- [x] Task 2: Create GitHub Actions CI/CD workflow (AC: #1, #2, #3, #4, #5, #6, #7)
+  - [x] 2.1 Created `.github/workflows/ci-cd.yml`
+  - [x] 2.2 Triggers: `push: branches: [main], tags: [v*.*.*]` + `pull_request: branches: [main]`
+  - [x] 2.3 `ci` job: checkout → setup-python@v5 → pip install → flake8 → black --check → pytest
+  - [x] 2.4 `build-and-push` job: GHCR login (GITHUB_TOKEN) → extract short SHA → docker/build-push-action@v5 (2 tags)
+  - [x] 2.5 `deploy-staging` job: appleboy/ssh-action@v1.0.3 → docker pull → docker-compose up → retry health check loop (6×10s)
+  - [x] 2.6 `deploy-production` job: same pattern, triggered by `refs/tags/v*`, uses PROD_* secrets
 
-- [ ] Task 3: Document GitHub Secrets setup in `README.md` (AC: #8)
-  - [ ] 3.1 Add section "CI/CD Setup" to `README.md`
-  - [ ] 3.2 Document required GitHub Secrets:
-    - `STAGING_SSH_KEY` — private SSH key for Staging EC2
-    - `STAGING_HOST` — Staging EC2 public IP or hostname
-    - `STAGING_USER` — SSH user (e.g., `ubuntu`)
-    - `PROD_SSH_KEY` — private SSH key for Production EC2
-    - `PROD_HOST` — Production EC2 public IP or hostname
-    - `PROD_USER` — SSH user (e.g., `ubuntu`)
-  - [ ] 3.3 Document how to trigger Production deploy: `git tag v1.0.0 && git push origin v1.0.0`
+- [x] Task 3: Document GitHub Secrets setup in `README.md` (AC: #8)
+  - [x] 3.1 Created full `README.md` with quickstart, CI/CD section, project structure, sprint roadmap
+  - [x] 3.2 Documented all 6 required GitHub Secrets in a markdown table with descriptions
+  - [x] 3.3 Documented EC2 one-time setup steps + Production deploy via `git tag v1.0.0 && git push origin v1.0.0`
 
-- [ ] Task 4: Local CI validation (AC: #9)
-  - [ ] 4.1 Run `flake8 src/ tests/` → 0 errors
-  - [ ] 4.2 Run `black --check src/ tests/` → no reformatting needed
-  - [ ] 4.3 Run `pytest tests/ -v` → **55 passed** (existing suite, no regressions)
+- [x] Task 4: Local CI validation (AC: #9)
+  - [x] 4.1 `flake8 src/ tests/` → **0 errors** ✅
+  - [x] 4.2 `black --check src/ tests/` → **22 files would be left unchanged** ✅
+  - [x] 4.3 `pytest tests/ -v` → **55 passed, 3 skipped, 0 failed** ✅
 
 ## Dev Notes
 
@@ -413,13 +373,49 @@ push to main
 ## Dev Agent Record
 
 ### Agent Model Used
-_To be filled by dev agent_
+Claude Sonnet 4.6 (Thinking) — bmad-dev-story workflow
 
 ### Debug Log References
-_To be filled by dev agent_
+- `pip install flake8==7.1.0 black==24.4.2` → installed successfully
+- `black src/ tests/` → 15 files reformatted, 7 unchanged
+- `flake8 src/ tests/` (first run) → 2 errors: E501 in run_simulator.py:167, F401 in conftest.py:5
+- After fixes: `flake8 src/ tests/` → **0 errors** ✅
+- `black --check src/ tests/` → **22 files would be left unchanged** ✅
+- `pytest tests/ -v` → **55 passed, 3 skipped, 0 failed** ✅
 
 ### Completion Notes List
-_To be filled by dev agent_
+- ✅ AC1: `.github/workflows/ci-cd.yml` created.
+- ✅ AC2: Triggers on `push: branches: [main]`, `push: tags: [v*.*.*]`, `pull_request: branches: [main]`.
+- ✅ AC3: `ci` job runs flake8 → black --check → pytest in sequence. Fails fast on any error.
+- ✅ AC4: `build-and-push` job uses `docker/build-push-action@v5` with `GITHUB_TOKEN` for GHCR auth. Tags: `{sha7}` + `latest`.
+- ✅ AC5: `deploy-staging` uses `appleboy/ssh-action@v1.0.3`. Retry health-check loop (6 attempts × 10s = 60s max).
+- ✅ AC6: `deploy-production` triggered by `refs/tags/v*` tag push. Uses separate PROD_* secrets.
+- ✅ AC7: All SSH keys and host IPs use GitHub Secrets — zero hardcoded values in workflow YAML.
+- ✅ AC8: `README.md` created with full CI/CD section, Secrets table, EC2 setup guide, production deploy instructions.
+- ✅ AC9: Local dry-run: flake8=0 errors, black=22 unchanged, pytest=55 passed.
+- **E501 fix**: Split long warning log string in `run_simulator.py:167` using implicit string concatenation.
+- **F401 fix**: Removed unused `import pytest` from `conftest.py` — `pytest_asyncio` handles fixture registration.
+- **Design decision**: Deploy uses retry loop (6×10s) instead of simple `sleep 15 && curl` — more reliable on slow cold-starts.
+- **GITHUB_TOKEN scope**: Added `permissions: packages: write` on `build-and-push` job only — principle of least privilege.
 
 ### File List
-_To be filled by dev agent_
+- `requirements.txt` [MODIFIED — added flake8==7.1.0, black==24.4.2]
+- `.flake8` [NEW — max-line-length=100, excludes non-source dirs]
+- `pyproject.toml` [NEW — [tool.black] config]
+- `.github/workflows/ci-cd.yml` [NEW — full CI/CD pipeline]
+- `README.md` [NEW — project docs with CI/CD setup guide]
+- `src/simulator/run_simulator.py` [MODIFIED — fix E501 long line at 167]
+- `tests/conftest.py` [MODIFIED — remove unused pytest import (F401)]
+- `src/api/database.py` [MODIFIED — black reformatted]
+- `src/api/routes/health.py` [MODIFIED — black reformatted]
+- `src/api/main.py` [MODIFIED — black reformatted]
+- `tests/test_docker_integration.py` [MODIFIED — black reformatted]
+- `src/api/models.py` [MODIFIED — black reformatted]
+- `src/api/routes/tickets.py` [MODIFIED — black reformatted]
+- `tests/test_health.py` [MODIFIED — black reformatted]
+- `tests/test_drift.py` [MODIFIED — black reformatted]
+- `src/api/schemas.py` [MODIFIED — black reformatted]
+- `tests/test_generator.py` [MODIFIED — black reformatted]
+- `tests/test_tickets.py` [MODIFIED — black reformatted]
+- `tests/test_schemas.py` [MODIFIED — black reformatted]
+- `src/simulator/generator.py` [MODIFIED — black reformatted]

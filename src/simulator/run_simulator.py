@@ -47,14 +47,15 @@ logger = logging.getLogger(__name__)
 # Counters dataclass for ingestion funnel tracking
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class Counters:
     """Track per-status counts for the ingestion funnel summary."""
 
     total: int = 0
-    accepted: int = 0      # HTTP 201 — ticket saved to DB
+    accepted: int = 0  # HTTP 201 — ticket saved to DB
     rejected_422: int = 0  # HTTP 422 — Pydantic validation failure (expected for invalids)
-    errors: int = 0        # Other 4xx, 5xx, connection errors
+    errors: int = 0  # Other 4xx, 5xx, connection errors
 
     def summary(self) -> str:
         return (
@@ -68,6 +69,7 @@ class Counters:
 # ---------------------------------------------------------------------------
 # CLI argument parsing
 # ---------------------------------------------------------------------------
+
 
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments for the simulator."""
@@ -121,6 +123,7 @@ def parse_args() -> argparse.Namespace:
 # HTTP sender with retry logic
 # ---------------------------------------------------------------------------
 
+
 def send_ticket(
     url: str,
     payload: dict,
@@ -161,15 +164,14 @@ def send_ticket(
                     )
                 else:
                     logger.warning(
-                        "[VALIDATION_ERROR] ticket_id=%s status=422 — unexpected (valid payload rejected)",
+                        "[VALIDATION_ERROR] ticket_id=%s status=422 — unexpected"
+                        " (valid payload rejected)",
                         ticket_id,
                     )
                 return status
 
             elif 400 <= status < 500:
-                logger.warning(
-                    "[CLIENT_ERROR] ticket_id=%s status=%d", ticket_id, status
-                )
+                logger.warning("[CLIENT_ERROR] ticket_id=%s status=%d", ticket_id, status)
                 return status
 
             else:  # 5xx
@@ -201,6 +203,7 @@ def send_ticket(
 # ---------------------------------------------------------------------------
 # Main loop
 # ---------------------------------------------------------------------------
+
 
 def run(args: argparse.Namespace) -> None:
     """Run the simulator loop until `--total` is reached or CTRL+C."""

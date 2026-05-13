@@ -8,6 +8,7 @@ normal unit test runs when Docker is not running.
 To run:
     DOCKER_INTEGRATION=1 pytest tests/test_docker_integration.py -v
 """
+
 import os
 
 import httpx
@@ -21,9 +22,7 @@ skip_reason = "Docker integration tests skipped (set DOCKER_INTEGRATION=1 to ena
 def test_api_health_endpoint_reachable():
     """Smoke test: API container is running and /health returns 200."""
     response = httpx.get("http://localhost:8000/health", timeout=10.0)
-    assert response.status_code == 200, (
-        f"Expected 200 from /health, got {response.status_code}"
-    )
+    assert response.status_code == 200, f"Expected 200 from /health, got {response.status_code}"
 
 
 @pytest.mark.skipif(not DOCKER_INTEGRATION, reason=skip_reason)
@@ -51,6 +50,6 @@ def test_api_tickets_endpoint_accepts_valid_payload():
         "type": "Request",
     }
     response = httpx.post("http://localhost:8000/tickets/", json=payload, timeout=10.0)
-    assert response.status_code == 201, (
-        f"Expected 201 Created, got {response.status_code}: {response.text}"
-    )
+    assert (
+        response.status_code == 201
+    ), f"Expected 201 Created, got {response.status_code}: {response.text}"

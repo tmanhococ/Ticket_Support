@@ -32,7 +32,7 @@ def test_output_validates_as_ticket_in():
     ticket_dict = generate_ticket()
     ticket = TicketIn(**ticket_dict)
     assert ticket.subject  # non-empty
-    assert ticket.body     # non-empty
+    assert ticket.body  # non-empty
 
 
 def test_ticket_id_is_valid_uuid_v4():
@@ -46,9 +46,7 @@ def test_language_in_allowed_set():
     """language must be 'en' or 'de' (AC3)."""
     for _ in range(30):
         result = generate_ticket()
-        assert result["language"] in ["en", "de"], (
-            f"Unexpected language: {result['language']!r}"
-        )
+        assert result["language"] in ["en", "de"], f"Unexpected language: {result['language']!r}"
 
 
 def test_queue_in_allowed_set():
