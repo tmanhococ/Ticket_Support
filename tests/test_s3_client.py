@@ -11,15 +11,19 @@ from src.api.utils import s3_client
 # Environment variables for testing
 TEST_BUCKET = "test-bucket"
 
+
 @mock_aws
 def test_upload_and_download_file():
     # Setup mock S3 environment
-    with patch.dict(os.environ, {
-        "AWS_ACCESS_KEY_ID": "testing",
-        "AWS_SECRET_ACCESS_KEY": "testing",
-        "AWS_REGION": "us-east-1",
-        "S3_BUCKET_NAME": TEST_BUCKET
-    }):
+    with patch.dict(
+        os.environ,
+        {
+            "AWS_ACCESS_KEY_ID": "testing",
+            "AWS_SECRET_ACCESS_KEY": "testing",
+            "AWS_REGION": "us-east-1",
+            "S3_BUCKET_NAME": TEST_BUCKET,
+        },
+    ):
         # Explicitly set mock client and create the test bucket
         conn = boto3.client("s3", region_name="us-east-1")
         conn.create_bucket(Bucket=TEST_BUCKET)
@@ -50,7 +54,7 @@ def test_upload_and_download_file():
             with open(download_path, "rb") as f:
                 content = f.read()
                 assert content == b"Hello, world!"
-                
+
             # Cleanup downloaded file
             os.remove(download_path)
 
@@ -59,18 +63,22 @@ def test_upload_and_download_file():
             if os.path.exists(tmp_file_path):
                 os.remove(tmp_file_path)
 
+
 @mock_aws
 def test_upload_failure_handling():
-    with patch.dict(os.environ, {
-        "AWS_ACCESS_KEY_ID": "testing",
-        "AWS_SECRET_ACCESS_KEY": "testing",
-        "AWS_REGION": "us-east-1",
-        "S3_BUCKET_NAME": "non-existent-bucket"
-    }):
+    with patch.dict(
+        os.environ,
+        {
+            "AWS_ACCESS_KEY_ID": "testing",
+            "AWS_SECRET_ACCESS_KEY": "testing",
+            "AWS_REGION": "us-east-1",
+            "S3_BUCKET_NAME": "non-existent-bucket",
+        },
+    ):
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(b"test")
             tmp_file_path = tmp_file.name
-            
+
         try:
             # Attempting to upload to a non-existent bucket should be caught gracefully
             # and return False

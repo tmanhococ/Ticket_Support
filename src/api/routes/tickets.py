@@ -51,7 +51,7 @@ async def create_ticket(
         queue=payload.queue,
         type=payload.type,
     )
-    
+
     # Shadow Inference
     try:
         model_service = request.app.state.model_service

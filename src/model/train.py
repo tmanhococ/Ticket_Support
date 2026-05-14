@@ -33,15 +33,19 @@ from sklearn.pipeline import Pipeline
 try:
     import mlflow
     import mlflow.sklearn
+
     _mlflow_available = True
 except ImportError:
     _mlflow_available = False
+
 
 def _log_to_mlflow(pipeline: Pipeline, params: dict, metrics: dict):
     """Log run to MLflow if available and reachable."""
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "")
     if not tracking_uri or not _mlflow_available:
-        logger.info("MLFLOW_TRACKING_URI not set or mlflow not installed — skipping MLflow logging.")
+        logger.info(
+            "MLFLOW_TRACKING_URI not set or mlflow not installed — skipping MLflow logging."
+        )
         return
     try:
         mlflow.set_tracking_uri(tracking_uri)
@@ -80,6 +84,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Synthetic dataset (used when no real data is provided)
 # ---------------------------------------------------------------------------
+
 
 def generate_synthetic_dataset() -> pd.DataFrame:
     """
@@ -133,6 +138,7 @@ def generate_synthetic_dataset() -> pd.DataFrame:
 # Data loading
 # ---------------------------------------------------------------------------
 
+
 def load_dataset(data_path: Optional[str]) -> pd.DataFrame:
     """
     Load ticket dataset from a CSV file or fall back to the synthetic set.
@@ -163,8 +169,7 @@ def load_dataset(data_path: Optional[str]) -> pd.DataFrame:
     missing = {TEXT_COLUMN, LABEL_COLUMN} - set(df.columns)
     if missing:
         raise ValueError(
-            f"Dataset is missing required columns: {missing}. "
-            f"Got: {list(df.columns)}"
+            f"Dataset is missing required columns: {missing}. " f"Got: {list(df.columns)}"
         )
 
     return df
@@ -173,6 +178,7 @@ def load_dataset(data_path: Optional[str]) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Model building
 # ---------------------------------------------------------------------------
+
 
 def build_pipeline() -> Pipeline:
     """
@@ -210,6 +216,7 @@ def build_pipeline() -> Pipeline:
 # ---------------------------------------------------------------------------
 # Training entry point
 # ---------------------------------------------------------------------------
+
 
 def train(
     data_path: Optional[str] = None,
@@ -260,13 +267,11 @@ def train(
     # 4. Evaluate
     y_pred = pipeline.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    
+
     report_dict = classification_report(
         y_test, y_pred, labels=LABELS, zero_division=0, output_dict=True
     )
-    report_str = classification_report(
-        y_test, y_pred, labels=LABELS, zero_division=0
-    )
+    report_str = classification_report(y_test, y_pred, labels=LABELS, zero_division=0)
     logger.info("Test Accuracy: %.4f", acc)
     logger.info("Classification Report:\n%s", report_str)
 
@@ -278,13 +283,13 @@ def train(
         "max_features": pipeline.named_steps["tfidf"].max_features,
         "max_iter": pipeline.named_steps["clf"].max_iter,
     }
-    
+
     metrics = {"accuracy": float(acc)}
     for label in LABELS:
         for metric_name in ["precision", "recall", "f1-score"]:
             key = f"{label}_{metric_name.replace('-', '_')}"
             metrics[key] = float(report_dict[label][metric_name])
-            
+
     _log_to_mlflow(pipeline, params, metrics)
 
     # 5. Save artifact
@@ -301,6 +306,7 @@ def train(
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train baseline ticket-triage classifier (Epic 6)."
@@ -309,7 +315,7 @@ def _parse_args() -> argparse.Namespace:
         "--data-path",
         default=None,
         help="Path to CSV file with 'text' and 'priority' columns. "
-             "Omit to use built-in synthetic dataset.",
+        "Omit to use built-in synthetic dataset.",
     )
     parser.add_argument(
         "--output-dir",

@@ -16,7 +16,7 @@ Story 9.2 tests:
 
 import os
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
@@ -158,9 +158,11 @@ class TestGenerateReport:
         # Mock the EvidentlyAI Report object
         mock_report = MagicMock()
 
-        with patch("src.drift_monitor.run_drift.Report", return_value=mock_report) as MockReport, \
-             patch("src.drift_monitor.run_drift.DataDriftPreset"), \
-             patch("src.drift_monitor.run_drift.DataQualityPreset"):
+        with (
+            patch("src.drift_monitor.run_drift.Report", return_value=mock_report),
+            patch("src.drift_monitor.run_drift.DataDriftPreset"),
+            patch("src.drift_monitor.run_drift.DataQualityPreset"),
+        ):
             result_path = generate_report(ref_df, curr_df, output_dir=str(tmp_path))
 
         # Verify report.run() and report.save_html() were called
@@ -178,9 +180,11 @@ class TestGenerateReport:
         curr_df = _make_df(CURRENT_ROWS)
 
         mock_report = MagicMock()
-        with patch("src.drift_monitor.run_drift.Report", return_value=mock_report), \
-             patch("src.drift_monitor.run_drift.DataDriftPreset"), \
-             patch("src.drift_monitor.run_drift.DataQualityPreset"):
+        with (
+            patch("src.drift_monitor.run_drift.Report", return_value=mock_report),
+            patch("src.drift_monitor.run_drift.DataDriftPreset"),
+            patch("src.drift_monitor.run_drift.DataQualityPreset"),
+        ):
             result_path = generate_report(ref_df, curr_df, output_dir=str(tmp_path))
 
         filename = os.path.basename(result_path)
@@ -195,9 +199,11 @@ class TestGenerateReport:
 
         # Patch Report to a non-None MagicMock so the guard passes
         # and the column-check logic is exercised.
-        with patch("src.drift_monitor.run_drift.Report", new=MagicMock()), \
-             patch("src.drift_monitor.run_drift.DataDriftPreset", new=MagicMock()), \
-             patch("src.drift_monitor.run_drift.DataQualityPreset", new=MagicMock()):
+        with (
+            patch("src.drift_monitor.run_drift.Report", new=MagicMock()),
+            patch("src.drift_monitor.run_drift.DataDriftPreset", new=MagicMock()),
+            patch("src.drift_monitor.run_drift.DataQualityPreset", new=MagicMock()),
+        ):
             with pytest.raises(RuntimeError, match="None of the target columns"):
                 generate_report(bad_df, bad_df, output_dir=str(tmp_path))
 
@@ -211,9 +217,11 @@ class TestGenerateReport:
         curr_df.loc[0, "predicted_priority"] = None
 
         mock_report = MagicMock()
-        with patch("src.drift_monitor.run_drift.Report", return_value=mock_report), \
-             patch("src.drift_monitor.run_drift.DataDriftPreset"), \
-             patch("src.drift_monitor.run_drift.DataQualityPreset"):
+        with (
+            patch("src.drift_monitor.run_drift.Report", return_value=mock_report),
+            patch("src.drift_monitor.run_drift.DataDriftPreset"),
+            patch("src.drift_monitor.run_drift.DataQualityPreset"),
+        ):
             # Should not raise
             generate_report(ref_df, curr_df, output_dir=str(tmp_path))
 
@@ -254,8 +262,12 @@ class TestRunDriftJob:
         from src.drift_monitor.run_drift import run_drift_job
 
         patches = self._setup_patches(tmp_path)
-        with patches["fetch_reference"], patches["fetch_current"], \
-             patches["generate_report"], patches["upload_file"] as mock_upload:
+        with (
+            patches["fetch_reference"],
+            patches["fetch_current"],
+            patches["generate_report"],
+            patches["upload_file"] as mock_upload,
+        ):
             run_drift_job(engine=MagicMock())
 
         # First call should use timestamped key under drift_reports/ prefix
@@ -269,8 +281,12 @@ class TestRunDriftJob:
         from src.drift_monitor.run_drift import run_drift_job
 
         patches = self._setup_patches(tmp_path)
-        with patches["fetch_reference"], patches["fetch_current"], \
-             patches["generate_report"], patches["upload_file"] as mock_upload:
+        with (
+            patches["fetch_reference"],
+            patches["fetch_current"],
+            patches["generate_report"],
+            patches["upload_file"] as mock_upload,
+        ):
             run_drift_job(engine=MagicMock())
 
         # Second call should use the 'latest' alias
@@ -284,12 +300,15 @@ class TestRunDriftJob:
 
         expected_path = str(tmp_path / "drift_report_20240201_000000.html")
         patches = self._setup_patches(tmp_path)
-        with patches["fetch_reference"], patches["fetch_current"], \
-             patch(
-                 "src.drift_monitor.run_drift.generate_report",
-                 return_value=expected_path,
-             ), \
-             patches["upload_file"]:
+        with (
+            patches["fetch_reference"],
+            patches["fetch_current"],
+            patch(
+                "src.drift_monitor.run_drift.generate_report",
+                return_value=expected_path,
+            ),
+            patches["upload_file"],
+        ):
             result = run_drift_job(engine=MagicMock())
 
         assert result == expected_path
@@ -300,10 +319,13 @@ class TestRunDriftJob:
         import logging
 
         patches = self._setup_patches(tmp_path)
-        with patches["fetch_reference"], patches["fetch_current"], \
-             patches["generate_report"], \
-             patch(self._UPLOAD_PATCH, return_value=False), \
-             caplog.at_level(logging.WARNING):
+        with (
+            patches["fetch_reference"],
+            patches["fetch_current"],
+            patches["generate_report"],
+            patch(self._UPLOAD_PATCH, return_value=False),
+            caplog.at_level(logging.WARNING),
+        ):
             # Should not raise
             run_drift_job(engine=MagicMock())
 
@@ -324,10 +346,13 @@ class TestSchedulerResilience:
         from src.drift_monitor.db_reader import DriftMonitorError
         import logging
 
-        with patch(
-            "src.drift_monitor.run_drift.run_drift_job",
-            side_effect=DriftMonitorError("DB unreachable"),
-        ), caplog.at_level(logging.ERROR):
+        with (
+            patch(
+                "src.drift_monitor.run_drift.run_drift_job",
+                side_effect=DriftMonitorError("DB unreachable"),
+            ),
+            caplog.at_level(logging.ERROR),
+        ):
             # Should NOT raise
             _safe_run_job()
 
@@ -338,10 +363,13 @@ class TestSchedulerResilience:
         from src.drift_monitor.run_drift import _safe_run_job
         import logging
 
-        with patch(
-            "src.drift_monitor.run_drift.run_drift_job",
-            side_effect=RuntimeError("Evidently crash"),
-        ), caplog.at_level(logging.ERROR):
+        with (
+            patch(
+                "src.drift_monitor.run_drift.run_drift_job",
+                side_effect=RuntimeError("Evidently crash"),
+            ),
+            caplog.at_level(logging.ERROR),
+        ):
             _safe_run_job()
 
         assert "Scheduled drift job failed" in caplog.text

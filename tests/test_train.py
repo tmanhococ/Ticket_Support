@@ -11,8 +11,6 @@ Test coverage:
   - Error handling for missing files and missing columns
 """
 
-import os
-import tempfile
 from pathlib import Path
 
 import joblib
@@ -62,9 +60,9 @@ class TestGenerateSyntheticDataset:
         df = generate_synthetic_dataset()
         counts = df[LABEL_COLUMN].value_counts()
         for label in LABELS:
-            assert counts.get(label, 0) >= 3, (
-                f"Label '{label}' has fewer than 3 samples: {counts.get(label, 0)}"
-            )
+            assert (
+                counts.get(label, 0) >= 3
+            ), f"Label '{label}' has fewer than 3 samples: {counts.get(label, 0)}"
 
 
 # ---------------------------------------------------------------------------
@@ -99,9 +97,7 @@ class TestLoadDataset:
 
     def test_raises_value_error_missing_columns(self, tmp_path):
         csv_path = tmp_path / "bad.csv"
-        pd.DataFrame({"description": ["ticket 1"], "level": ["high"]}).to_csv(
-            csv_path, index=False
-        )
+        pd.DataFrame({"description": ["ticket 1"], "level": ["high"]}).to_csv(csv_path, index=False)
         with pytest.raises(ValueError, match="missing required columns"):
             load_dataset(str(csv_path))
 

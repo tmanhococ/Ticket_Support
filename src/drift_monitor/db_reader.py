@@ -13,7 +13,6 @@ Design rules (architecture.md §4):
 
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -73,9 +72,7 @@ def fetch_reference_data(
         raise DriftMonitorError(f"Failed to fetch reference data: {exc}") from exc
 
     if df.empty:
-        raise DriftMonitorError(
-            f"Reference dataset is empty — need at least 1 ticket."
-        )
+        raise DriftMonitorError("Reference dataset is empty — need at least 1 ticket.")
 
     logger.info("Fetched %d reference tickets.", len(df))
     return df
@@ -119,9 +116,7 @@ def fetch_current_data(
         raise DriftMonitorError(f"Failed to fetch current data: {exc}") from exc
 
     if df.empty:
-        raise DriftMonitorError(
-            f"No current data found in the last {window_hours} hours."
-        )
+        raise DriftMonitorError(f"No current data found in the last {window_hours} hours.")
 
     logger.info("Fetched %d current tickets (last %dh).", len(df), window_hours)
     return df

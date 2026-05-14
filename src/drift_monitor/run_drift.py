@@ -29,6 +29,7 @@ import pandas as pd
 try:
     from evidently.report import Report
     from evidently.metric_presets import DataDriftPreset, DataQualityPreset
+
     _EVIDENTLY_AVAILABLE = True
 except ImportError:
     Report = None
@@ -74,22 +75,17 @@ def generate_report(
         RuntimeError: If EvidentlyAI report generation fails.
     """
     if Report is None:
-        raise RuntimeError(
-            "evidently is not installed. Run: pip install evidently"
-        )
+        raise RuntimeError("evidently is not installed. Run: pip install evidently")
 
     # Select text columns relevant to drift detection
     columns_to_monitor = ["language", "queue", "type", "predicted_priority"]
 
     # Keep only columns that exist in both DataFrames
     available_cols = [
-        c for c in columns_to_monitor
-        if c in reference_df.columns and c in current_df.columns
+        c for c in columns_to_monitor if c in reference_df.columns and c in current_df.columns
     ]
     if not available_cols:
-        raise RuntimeError(
-            f"None of the target columns {columns_to_monitor} found in DataFrames."
-        )
+        raise RuntimeError(f"None of the target columns {columns_to_monitor} found in DataFrames.")
 
     ref = reference_df[available_cols].copy()
     curr = current_df[available_cols].copy()
@@ -101,7 +97,9 @@ def generate_report(
 
     logger.info(
         "Running EvidentlyAI report: ref=%d rows, current=%d rows, cols=%s",
-        len(ref), len(curr), available_cols,
+        len(ref),
+        len(curr),
+        available_cols,
     )
 
     report = Report(metrics=[DataDriftPreset(), DataQualityPreset()])
@@ -161,7 +159,9 @@ def run_drift_job(engine=None) -> str:
     else:
         logger.warning(
             "S3 upload incomplete (ts=%s, latest=%s). Report saved locally at %s.",
-            ts_uploaded, latest_uploaded, report_path,
+            ts_uploaded,
+            latest_uploaded,
+            report_path,
         )
 
     logger.info("=== Drift Monitor Job Complete ===")
@@ -173,9 +173,7 @@ def _run_scheduled():
     import schedule
     import time
 
-    logger.info(
-        "Starting scheduled drift monitor (every %d hours).", SCHEDULE_INTERVAL_HOURS
-    )
+    logger.info("Starting scheduled drift monitor (every %d hours).", SCHEDULE_INTERVAL_HOURS)
 
     # Run once immediately on startup, then on schedule
     try:

@@ -1,5 +1,6 @@
 import os
 import logging
+
 try:
     import joblib
 except ImportError:
@@ -13,6 +14,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class ModelService:
     def __init__(self):
         self.model = None
@@ -24,7 +26,7 @@ class ModelService:
         otherwise fallback to local joblib file.
         """
         tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "")
-        
+
         # Try loading from MLflow
         if tracking_uri and mlflow:
             try:
@@ -37,7 +39,7 @@ class ModelService:
                 return
             except Exception as e:
                 logger.warning(f"Failed to load model from MLflow: {e}")
-        
+
         # Fallback to local file
         local_model_path = os.getenv("LOCAL_MODEL_PATH", "model.joblib")
         logger.info(f"Attempting to load local fallback model from {local_model_path}")
@@ -49,7 +51,7 @@ class ModelService:
                 return
             except Exception as e:
                 logger.warning(f"Failed to load local model: {e}")
-        
+
         logger.error("No model could be loaded. Inference will be disabled.")
         self.model = None
         self.model_source = None
@@ -61,7 +63,7 @@ class ModelService:
         """
         if self.model is None:
             raise ValueError("Model is not loaded.")
-        
+
         try:
             # MLflow pyfunc model expects a pandas DataFrame, or list/array
             # Our sklearn pipeline inside mlflow handles lists
@@ -70,5 +72,6 @@ class ModelService:
         except Exception as e:
             logger.error(f"Prediction failed: {e}")
             raise
+
 
 model_service = ModelService()
