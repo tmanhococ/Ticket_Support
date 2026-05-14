@@ -27,6 +27,8 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=False,
     pool_pre_ping=True,  # verifies connections before use
+    pool_size=20,
+    max_overflow=10,
 )
 
 AsyncSessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(

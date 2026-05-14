@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: "2026-05-12T21:38:59+07:00"
-last_updated: "2026-05-13T13:15:00+07:00"
+last_updated: "2026-05-14T12:51:00+07:00"
 project: Ticket_Support
 project_key: NOKEY
 tracking_system: file-system
@@ -51,6 +51,7 @@ development_status:
   1-1-setup-fastapi-project-structure-and-db-connection: review
   1-2-define-ticket-pydantic-schema: review
   1-3-create-intake-endpoint-and-db-save: done
+  1-4-import-historical-data: ready-for-dev
   epic-1-retrospective: optional
 
   # Epic 2: Stream simulator
@@ -76,26 +77,26 @@ development_status:
   # ============================================================
 
   # Epic 5: Setup & Optimize Storage
-  epic-5: backlog
-  5-1-optimize-postgresql-configuration: backlog
-  5-2-configure-aws-s3-client: backlog
+  epic-5: in-progress
+  5-1-optimize-postgresql-configuration: review
+  5-2-configure-aws-s3-client: review
   epic-5-retrospective: optional
 
   # Epic 6: Baseline Model Training
-  epic-6: backlog
-  6-1-develop-training-pipeline: backlog
+  epic-6: in-progress
+  6-1-develop-training-pipeline: review
   epic-6-retrospective: optional
 
   # Epic 7: MLflow Tracking
-  epic-7: backlog
-  7-1-setup-mlflow-server: backlog
-  7-2-integrate-mlflow-into-training: backlog
+  epic-7: in-progress
+  7-1-setup-mlflow-server: review
+  7-2-integrate-mlflow-into-training: in-progress
   epic-7-retrospective: optional
 
   # Epic 8: Shadow Inference
-  epic-8: backlog
-  8-1-load-model-in-api: backlog
-  8-2-implement-shadow-deployment-logic: backlog
+  epic-8: in-progress
+  8-1-load-model-in-api: done
+  8-2-implement-shadow-deployment-logic: done
   epic-8-retrospective: optional
 
   # ============================================================
@@ -103,9 +104,9 @@ development_status:
   # ============================================================
 
   # Epic 9: Data Drift Detection
-  epic-9: backlog
-  9-1-generate-evidentlyai-report: backlog
-  9-2-automate-and-upload-drift-reports: backlog
+  epic-9: in-progress
+  9-1-generate-evidentlyai-report: review
+  9-2-automate-and-upload-drift-reports: review
   epic-9-retrospective: optional
 
   # Epic 10: Fail-safe Mechanisms

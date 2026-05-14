@@ -165,3 +165,57 @@ async def test_health_still_returns_200_after_tickets_route_added(client):
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+@pytest.mark.asyncio
+async def test_create_ticket_shadow_inference_success(client):
+    """Test that predicted_priority is assigned when model inference succeeds."""
+    mock_session = _make_ok_session()
+    
+    # Mock model service on app state
+    mock_model_service = MagicMock()
+    mock_model_service.model = MagicMock()
+    mock_model_service.predict.return_value = ["high"]
+    app.state.model_service = mock_model_service
+
+    async def override():
+        yield mock_session
+
+    app.dependency_overrides[get_db] = override
+    try:
+        response = await client.post("/tickets/", json=VALID_TICKET)
+    finally:
+        app.dependency_overrides.clear()
+        # Clean up app state
+        delattr(app.state, "model_service")
+
+    assert response.status_code == 201
+    mock_model_service.predict.assert_called_once_with([f"{VALID_TICKET['subject']} {VALID_TICKET['body']}"])
+    # Verify it was added to session with predicted_priority
+    added_ticket = mock_session.add.call_args[0][0]
+    assert added_ticket.predicted_priority == "high"
+
+@pytest.mark.asyncio
+async def test_create_ticket_shadow_inference_failure_graceful(client):
+    """Test that the API still returns 201 when model inference fails."""
+    mock_session = _make_ok_session()
+    
+    mock_model_service = MagicMock()
+    mock_model_service.model = MagicMock()
+    mock_model_service.predict.side_effect = Exception("Model exploded")
+    app.state.model_service = mock_model_service
+
+    async def override():
+        yield mock_session
+
+    app.dependency_overrides[get_db] = override
+    try:
+        response = await client.post("/tickets/", json=VALID_TICKET)
+    finally:
+        app.dependency_overrides.clear()
+        delattr(app.state, "model_service")
+
+    assert response.status_code == 201
+    mock_model_service.predict.assert_called_once()
+    added_ticket = mock_session.add.call_args[0][0]
+    # Priority should not be set
+    assert getattr(added_ticket, "predicted_priority", None) is None

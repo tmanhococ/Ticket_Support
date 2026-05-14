@@ -10,8 +10,10 @@ Design rules (08_agent_workflow_rules.md ยง3, 04_environment_and_deployment.md ย
 """
 
 from typing import Annotated
+import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +31,7 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
     response_description="Ticket accepted and persisted",
 )
 async def create_ticket(
+    request: Request,
     payload: TicketIn,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> dict:
@@ -48,6 +51,20 @@ async def create_ticket(
         queue=payload.queue,
         type=payload.type,
     )
+    
+    # Shadow Inference
+    try:
+        model_service = request.app.state.model_service
+        if model_service.model is not None:
+            # Combine subject and body for text classification
+            combined_text = f"{payload.subject} {payload.body}"
+            # Run CPU-bound prediction in a separate thread
+            predictions = await run_in_threadpool(model_service.predict, [combined_text])
+            if predictions and len(predictions) > 0:
+                ticket.predicted_priority = predictions[0]
+    except Exception as e:
+        # Graceful degradation: log the error and continue without setting predicted_priority
+        logging.warning(f"Shadow inference failed for ticket {payload.ticket_id}: {e}")
     try:
         db.add(ticket)
         await db.commit()

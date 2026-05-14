@@ -21,7 +21,7 @@ def get_db_engine():
     if "+asyncpg" in db_url:
         db_url = db_url.replace("+asyncpg", "")
 
-    engine = create_engine(db_url)
+    engine = create_engine(db_url, pool_size=10, max_overflow=5)
     return engine
 
 

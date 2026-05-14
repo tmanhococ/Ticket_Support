@@ -62,5 +62,69 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  # MLflow Tracking Server (Epic 7)
+  # UI accessible at http://localhost:5000 (port already open in EC2 security group)
+  # Backend store: PostgreSQL tickets_db (MLflow auto-creates its own tables)
+  # Artifact store: S3 bucket under prefix mlflow/
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.13.0
+    container_name: tickets_mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      # AWS credentials for S3 artifact store
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_REGION:-ap-southeast-1}
+      # PostgreSQL connection (reuse existing db service)
+      POSTGRES_USER: ${POSTGRES_USER:-tickets_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tickets_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-tickets_db}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://${POSTGRES_USER:-tickets_user}:${POSTGRES_PASSWORD:-tickets_pass}@db:5432/${POSTGRES_DB:-tickets_db}
+      --default-artifact-root s3://${S3_BUCKET_NAME}/mlflow/
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Data Drift Monitor (Epic 9)
+  # Runs EvidentlyAI drift detection on a schedule (every SCHEDULE_INTERVAL_HOURS hours).
+  # Reads tickets from PostgreSQL, generates HTML report, uploads to S3.
+  # Override CMD with --once for manual/test run:
+  #   docker-compose run drift-monitor python -m src.drift_monitor.run_drift --once
+  drift-monitor:
+    build:
+      context: .
+      dockerfile: src/drift_monitor/Dockerfile
+    container_name: tickets_drift_monitor
+    environment:
+      # Sync DB URL (psycopg2 — NOT asyncpg)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tickets_user}:${POSTGRES_PASSWORD:-tickets_pass}@db:5432/${POSTGRES_DB:-tickets_db}
+      # AWS / S3
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-ap-southeast-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      # Drift monitor tuning
+      CURRENT_WINDOW_HOURS: ${CURRENT_WINDOW_HOURS:-24}
+      REFERENCE_SAMPLE_SIZE: ${REFERENCE_SAMPLE_SIZE:-500}
+      SCHEDULE_INTERVAL_HOURS: ${SCHEDULE_INTERVAL_HOURS:-6}
+      REPORT_OUTPUT_DIR: /tmp/drift_reports
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
 volumes:
   postgres_data:

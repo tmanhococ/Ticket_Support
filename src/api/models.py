@@ -44,3 +44,4 @@ class Ticket(Base):
         server_default=func.now(),
         nullable=False,
     )
+    predicted_priority: Mapped[str | None] = mapped_column(String(50), nullable=True)

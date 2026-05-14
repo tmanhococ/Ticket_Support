@@ -14,6 +14,7 @@ from fastapi import FastAPI
 
 from src.api.database import create_tables, engine
 from src.api.routes import health, tickets
+from src.api.services.model_service import model_service
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,6 +33,11 @@ async def lifespan(app: FastAPI):
     except Exception as exc:  # noqa: BLE001
         # Graceful degradation: log but do NOT crash on startup
         logger.warning("DB unavailable at startup (will retry per-request): %s", exc)
+        
+    logger.info("Loading ML model...")
+    model_service.load_model()
+    app.state.model_service = model_service
+    
     yield
     logger.info("Shutting down — disposing DB connection pool...")
     await engine.dispose()
