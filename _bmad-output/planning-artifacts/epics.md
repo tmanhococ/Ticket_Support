@@ -402,17 +402,18 @@ So that I can recover from a bad deployment in under 5 minutes.
 
 Hoàn thiện giao diện điều khiển, tích hợp báo cáo theo dõi Drift để Support Lead và MLOps Engineer có bức tranh toàn cảnh.
 
-### Story 11.1: Real-time Distribution Charts
+### Story 11.1: Real-time Distribution Charts & Trend Monitoring
 
 As a Support Lead,
-I want to see visual charts of ticket priorities,
-So that I can quickly assess the workload.
+I want to see visual charts of ticket priorities and their trends over time,
+So that I can quickly assess the workload and spot sudden spikes.
 
 **Acceptance Criteria:**
 **Given** tickets with predicted priorities in the DB
 **When** I view the Streamlit dashboard
-**Then** I see a pie/bar chart showing the ratio of high/medium/low tickets
-**And** it reflects the current DB state
+**Then** I see a time-series chart (line/area) showing ticket volume over time grouped by priority
+**And** I see a pie/bar chart showing the overall ratio of high/medium/low tickets
+**And** I can see the recent ticket list to identify the content of any spikes (e.g., payment errors)
 
 ### Story 11.2: Embed Drift Report in Dashboard
 
@@ -424,6 +425,30 @@ So that I don't have to download HTML files manually.
 **Given** an uploaded drift report in S3
 **When** I navigate to the "Monitoring" tab in Streamlit
 **Then** the latest HTML report is fetched and rendered inside the app
+
+### Story 11.3: Model Performance List
+
+As a MLOps Engineer,
+I want to see a list of trained models and their performance metrics on the dashboard,
+So that I can easily compare models and click to view detailed information.
+
+**Acceptance Criteria:**
+**Given** models registered in MLflow
+**When** I navigate to the "Models" tab in the dashboard
+**Then** I see a list of trained models with metrics
+**And** I can click/expand to view detailed parameters and model information
+
+### Story 11.4: Data Simulation Tab
+
+As a QA/MLOps Engineer,
+I want a simulation tab in the dashboard to generate data and view predictions,
+So that I can test the model's behavior interactively.
+
+**Acceptance Criteria:**
+**Given** the Streamlit dashboard
+**When** I input simulation parameters and click "Generate & Send"
+**Then** data is generated and sent to the API
+**And** the dashboard displays the newly generated data along with the model's classification results and summary charts
 
 ## Epic 12: Incident Drill (Tùy chọn)
 

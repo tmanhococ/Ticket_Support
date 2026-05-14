@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the dashboard code
-COPY src/dashboard/ ./src/dashboard/
+# Copy the entire src directory so dashboard can access simulator and s3 utils
+COPY src/ ./src/
 
 EXPOSE 8501
 

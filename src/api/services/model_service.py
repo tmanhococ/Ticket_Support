@@ -56,13 +56,28 @@ class ModelService:
         self.model = None
         self.model_source = None
 
+    def rule_based_predict(self, texts: list[str]) -> list[str]:
+        """Fallback rule-based prediction."""
+        predictions = []
+        for text in texts:
+            text_lower = text.lower()
+            if any(
+                keyword in text_lower
+                for keyword in ["urgent", "critical", "outage", "sicherheitsvorfall", "security"]
+            ):
+                predictions.append("high")
+            else:
+                predictions.append("medium")
+        return predictions
+
     def predict(self, texts: list[str]) -> list[str]:
         """
         Predict the priority for a list of texts.
         Returns a list of labels (e.g., ['high', 'low']).
         """
         if self.model is None:
-            raise ValueError("Model is not loaded.")
+            logger.warning("Model is not loaded. Falling back to rule-based prediction.")
+            return self.rule_based_predict(texts)
 
         try:
             # MLflow pyfunc model expects a pandas DataFrame, or list/array
@@ -70,8 +85,8 @@ class ModelService:
             predictions = self.model.predict(texts)
             return list(predictions)
         except Exception as e:
-            logger.error(f"Prediction failed: {e}")
-            raise
+            logger.warning(f"Prediction failed: {e}. Falling back to rule-based prediction.")
+            return self.rule_based_predict(texts)
 
 
 model_service = ModelService()

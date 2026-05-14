@@ -46,10 +46,19 @@ def test_load_fallback_model(mock_getenv, mock_exists, mock_joblib, mock_mlflow)
     assert service.model_source == "local"
 
 
-def test_predict_without_model():
+def test_predict_without_model_uses_fallback():
     service = ModelService()
-    with pytest.raises(ValueError, match="Model is not loaded."):
-        service.predict(["test"])
+    service.model = None
+    result = service.predict(["this is an urgent issue", "just a normal question"])
+    assert result == ["high", "medium"]
+
+def test_predict_exception_uses_fallback():
+    service = ModelService()
+    mock_model = MagicMock()
+    mock_model.predict.side_effect = Exception("Model failed")
+    service.model = mock_model
+    result = service.predict(["critical outage", "normal"])
+    assert result == ["high", "medium"]
 
 
 def test_predict_success():

@@ -126,5 +126,18 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  # ngrok tunnel for Streamlit dashboard (Epic 11)
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: tickets_ngrok
+    restart: on-failure
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command:
+      - "http"
+      - "dashboard:8501"
+    depends_on:
+      - dashboard
+
 volumes:
   postgres_data:

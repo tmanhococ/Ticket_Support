@@ -110,15 +110,17 @@ development_status:
   epic-9-retrospective: optional
 
   # Epic 10: Fail-safe Mechanisms
-  epic-10: backlog
-  10-1-implement-graceful-degradation: backlog
-  10-2-infrastructure-rollback-script: backlog
+  epic-10: in-progress
+  10-1-implement-graceful-degradation: ready-for-dev
+  10-2-infrastructure-rollback-script: ready-for-dev
   epic-10-retrospective: optional
 
   # Epic 11: Dashboard Polish
-  epic-11: backlog
-  11-1-real-time-distribution-charts: backlog
-  11-2-embed-drift-report-in-dashboard: backlog
+  epic-11: in-progress
+  11-1-real-time-distribution-charts: ready-for-dev
+  11-2-embed-drift-report-in-dashboard: ready-for-dev
+  11-3-model-performance-list: ready-for-dev
+  11-4-data-simulation-tab: ready-for-dev
   epic-11-retrospective: optional
 
   # Epic 12: Incident Drill (Tùy chọn)
