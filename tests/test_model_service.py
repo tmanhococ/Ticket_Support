@@ -1,6 +1,5 @@
 from unittest.mock import patch, MagicMock
 from src.api.services.model_service import ModelService
-import pytest
 
 
 @patch("src.api.services.model_service.mlflow")
@@ -51,6 +50,7 @@ def test_predict_without_model_uses_fallback():
     service.model = None
     result = service.predict(["this is an urgent issue", "just a normal question"])
     assert result == ["high", "medium"]
+
 
 def test_predict_exception_uses_fallback():
     service = ModelService()
